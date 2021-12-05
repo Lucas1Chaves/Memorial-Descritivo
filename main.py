@@ -2,15 +2,17 @@ import openpyxl
 from openpyxl.utils import get_column_letter
 import time
 import docx
-
+Not_Included = [14,15,16,17,18]
 def Find_Description(Database,code,title):
     Result = {}
+    # Primeiro tento achar a descrição com o código do item 
     try:
         index = Database['Codes'].index(code)
         Result['Description'] = Database['Descriptions'][index]
         Result['Method'] = 'Code'
         return Result
     except ValueError:
+    # Caso não de certo, procuro a descrição com o titulo 
         try:
             index = Database['Titles'].index(title)
             Result['Description']= Database['Descriptions'][index]
@@ -66,30 +68,18 @@ Database['Titles'] = [cell[0].value for cell in Column_B]
 Column_C = Database_Sheet['C2':'C'+str(Database_Sheet.max_row)]
 Database['Descriptions'] = [cell[0].value for cell in Column_C]
 
-"""""
 
-
-Titulos = [cell[0].value for cell in Titulos]
-#print(Titulos[214])
-#print(Codigos[214])
-#print(Itens[214])
-
-Banco_Dados_Codigos_Titulos = dict(zip(codigos_aux,titulos_aux))
-
-
-codigos_aux2 = [str(cell.value).strip() for cell in Tabela_Banco_Dados_2['A']]
-descricoes_aux = [cell.value for cell in Tabela_Banco_Dados_2['B']]
-Banco_Dados_Codigos_Descricoes = dict(zip(codigos_aux2,descricoes_aux))
-"""
-doc = docx.Document('Memorial Descritivo.docx')
+doc = docx.Document('Papel Timbrado Sião.docx')
 doc_missing_codes = docx.Document()
 #font = doc.styles['Normal'].font
 #font.name = 'Arial'
 missing_codes =[]
 for item,title,code in zip(Budget['Items'],Budget['Titles'],Budget['Codes']):
     
-    if item != '':
+    if item != '' and int(item) not in (Not_Included):
         print(code,item,type(item))
+        # Se o código não existe e o item é um inteiro,  
+        # então significa que é um titulo 
         if code ==None and isinstance(item,int):
             
             doc.add_paragraph(str(item)+'. ' +title,style='01-TÍTULO')
@@ -108,7 +98,8 @@ for item,title,code in zip(Budget['Items'],Budget['Titles'],Budget['Codes']):
             if Result['Method'] == 'Code':
                 doc.add_paragraph(Result['Description'],style='03-DESCRIÇÃO')
             elif Result['Method'] == 'Title':
-                doc.add_paragraph(Result['Description'],style='03-DESCRIÇÃO')
+                doc.add_paragraph(Result['Description'],style='03-DESCRIÇÃO-TITULO')
+
             else:
                 doc_missing_codes.add_paragraph(str(code))
         
